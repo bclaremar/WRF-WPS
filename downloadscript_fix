@@ -1,0 +1,73 @@
+#!/bin/bash
+m=$(date "+%m")
+d=$(date "+%d")
+echo $m
+echo $d
+#d=30
+hh=$(date "+%k")
+aa=$(expr $hh - 6)
+a=$(expr $aa / 6)
+b=$(expr $a \* 6)
+h=$b;
+if (( $b < 10 ));then h="0$b"; fi;
+echo $h
+cd /clusterfs2/WRF/DATA
+files="GFSd${d}_t${h}*"
+#ss=($(ls $files))
+#echo $ss
+#sd=($(ls -l $files | awk '{print $5}'))
+#echo $sd
+#exit
+t=0
+j=0
+
+
+for fh in {00..30..3}; do
+	file="GFSd${d}_t${h}z_${fh}"
+	if [ -f "$file" ]; then
+		echo "$file exists."
+        	sd=($(ls -l $file | awk '{print $5}'))
+	        echo $sd
+		if [ $sd -lt 506000000 ];then
+        		echo "$fh is too small file"
+	                cmd="curl -s --disable-epsv --connect-timeout 60 -u anonymous:bjorn.claremar@uppmax.uu.se -o GFSd${d}_t${h}z_${fh} https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs.2021${m}${d}/${h}/atmos/gfs.t${h}z.pgrb2.0p25.f0${fh}"
+                        echo $cmd
+	                eval $cmd >& error.log
+
+		fi
+	else
+		echo "$file does not exist."
+	        cmd="curl -s --disable-epsv --connect-timeout 60 -u anonymous:bjorn.claremar@uppmax.uu.se -o GFSd${d}_t${h}z_${fh} https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs.202108${d}/${h}/atmos/gfs.t${h}z.pgrb2.0p25.f0${fh}"
+        	echo $cmd
+		eval $cmd >& error.log
+	fi
+done
+exit
+exit
+#for i in ${sd[@]}
+do
+    echo $i
+#    echo $t
+    if [ $i -lt 4900000000 ];then
+        echo "$t is too small file"
+        fh=$t
+#        cd ../DATA
+        cmd="curl -s --disable-epsv --connect-timeout 30 -u anonymous:bjorn.claremar@uppmax.uu.se -o GFSd${dds}_t${hhs}z_${fh} https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs.202106${dds}/${hhs}/atmos/gfs.t${hhs}z.pgrb2.0p25.f0${fh}"
+        echo $cmd
+#        eval $cmd >& error.log
+#        cd ../WPS-4.2
+
+    fi
+    t=$[$t+3]
+done
+echo "GFS download fix is done!"
+exit
+exit
+for fh in {00..30..3}; do
+	cmd="curl -s --disable-epsv --connect-timeout 30 -u anonymous:bjorn.claremar@uppmax.uu.se -o GFSd${d}_t${h}z_${fh} https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs.202106${d}/${h}/atmos/gfs.t${h}z.pgrb2.0p25.f0${fh}"
+#cmd="wget https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.202104${d}/${h}/atmos/gfs.t${h}z.pgrb2.0p25.f{000,003,006,009,012,015,018,021,024,027,030,033,036}"
+	echo $cmd
+#	eval $cmd >& error.log
+done
+
+

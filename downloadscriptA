@@ -1,0 +1,19 @@
+#!/bin/bash
+d=$(date "+%d")
+echo $d
+
+hh=$(date "+%k")
+aa=$(expr $hh - 3)
+a=$(expr $aa / 6)
+b=$(expr $a \* 6)
+h=$b;
+if (( $b < 10 ));then h="0$b"; fi;
+echo $h
+cd /clusterfs/software/WRF/build/DATA/
+cmd="rm -f gfs.t${h}z*"
+echo $cmd
+eval $cmd
+
+cmd="wget https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.202104${d}/${h}/atmos/gfs.t${h}z.pgrb2.0p25.f{000,003,006,009,012,015,018,021,024,027,030,033,036}"
+echo $cmd
+eval $cmd >& error.log

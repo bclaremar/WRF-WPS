@@ -1,0 +1,26 @@
+#!/bin/bash
+m=$(date "+%m")
+echo $m
+d=$(date --date="1 hours ago" "+%d")
+echo $d
+#d=30
+hh=$(date --date="1 hours ago" "+%k")
+aa=$(expr $hh - 4)
+a=$(expr $aa / 6)
+b=$(expr $a \* 6)
+h=$b;
+if (( $b < 10 ));then h="0$b"; fi;
+echo $h
+cd /clusterfs2/WRF/DATA
+cmd="rm -f GFSd*t${h}z*"
+echo $cmd
+eval $cmd
+#exit
+for fh in {00..48..3}; do
+	cmd="curl -s --disable-epsv --connect-timeout 120 -u anonymous:bjorn.claremar@uppmax.uu.se -o GFSd${d}_t${h}z_${fh} https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs.2021${m}${d}/${h}/atmos/gfs.t${h}z.pgrb2.0p25.f0${fh}"
+	echo $cmd
+	eval $cmd >& error.log
+done
+./downloadscript_fix48
+
+
